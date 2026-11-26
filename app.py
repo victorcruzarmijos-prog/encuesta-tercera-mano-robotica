@@ -8,8 +8,8 @@ st.set_page_config(
 )
 
 # === 1. PEGA AQUÍ TUS DOS ENLACES ===
-URL_APPS_SCRIPT = "PEGA_AQUI_LA_URL_QUE_TERMINA_EN_EXEC"
-ID_HOJA = "PEGA_AQUI_EL_IDENTIFICADOR_DE_TU_HOJA"
+URL_APPS_SCRIPT = https://script.google.com/macros/s/AKfycbyV4WUdP8vvEkRgqnWTvMyFdcXchyXtJXO8oKVX660rpj8SxVIbQrvO9fDp4n3FDH2Y/exec
+ID_HOJA = 1vn_id57bRE3l3dTh_ScTknJpTW3HDjmUnIA7tc4BX6M
 URL_CSV_HOJA = f"https://docs.google.com/spreadsheets/d/{ID_HOJA}/gviz/tq?tqx=out:csv&sheet=Datos_Limpios"
 
 st.title("Encuesta: Tercera Mano Robótica para Soldadura de Placas")
