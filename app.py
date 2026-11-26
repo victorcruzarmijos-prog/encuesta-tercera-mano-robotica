@@ -11,7 +11,7 @@ import streamlit as st
 # 1. CONFIGURACIÓN GENERAL DE LA PÁGINA
 # ==============================================================================
 st.set_page_config(
-    page_title="Tercera Mano Robótica | Diseño de Máquinas EPN",
+    page_title="Brazo Robótico Asistente de Soldadura | Diseño de Máquinas EPN",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -30,36 +30,36 @@ URL_CSV_HOJA = (
 )
 
 # ==============================================================================
-# 3. DATOS DEL EQUIPO (EDITA LOS NOMBRES DE LOS INTEGRANTES 1 Y 4 AQUÍ)
+# 3. DATOS OFICIALES DEL PROYECTO Y EQUIPO (GR1S4 · EPN)
 # ==============================================================================
 EQUIPO = [
     {
-        "nombre": "Integrante 1 (Editar nombre)",
-        "carrera": "Ingeniería Mecatrónica · EPN",
-        "rol": "Planteamiento, Metodología y Ciclo de Vida (OpenLCA)",
+        "nombre": "Stalin Alexander Boada Guacollante",
+        "carrera": "Ingeniería Mecatrónica · EPN (GR1S4)",
+        "rol": "Planteamiento, Ciclo de Vida Comercial y Modelo OpenLCA",
         "capitulo": "Capítulo 1 · Secciones 1.1 a 1.7",
         "icono": "🌱",
     },
     {
         "nombre": "Victor Cruz",
-        "carrera": "Ingeniería Mecatrónica · EPN",
-        "rol": "Encuesta Python/Streamlit, Analítica e IA de Bocetos",
+        "carrera": "Ingeniería Mecatrónica · EPN (GR1S4)",
+        "rol": "Encuesta Python/Streamlit, Analítica Real e IA de Bocetos",
         "capitulo": "Cap. 2 (2.1–2.5) y Cap. 3 (3.7–3.8)",
         "icono": "💻",
     },
     {
-        "nombre": "Daniel Ramos",
-        "carrera": "Ingeniería Mecatrónica · EPN",
-        "rol": "Arquitectura Funcional, Modularidad y Selección",
-        "capitulo": "Capítulo 3 · Secciones 3.1 a 3.6 y 3.9",
-        "icono": "⚙️",
-    },
-    {
-        "nombre": "Integrante 4 (Editar nombre)",
-        "carrera": "Ingeniería Mecatrónica · EPN",
-        "rol": "Casas de Calidad (QFD) e Integración Técnica",
+        "nombre": "Maverick Cadena",
+        "carrera": "Ingeniería Mecatrónica · EPN (GR1S4)",
+        "rol": "Tres Casas de Calidad (QFD), Competidores y Trazabilidad",
         "capitulo": "Capítulo 2 · Secciones 2.6 a 2.9",
         "icono": "📐",
+    },
+    {
+        "nombre": "Alan Villamarín",
+        "carrera": "Ingeniería Mecatrónica · EPN (GR1S4)",
+        "rol": "Análisis Funcional, Módulos, Matriz Morfológica y Selección",
+        "capitulo": "Capítulo 3 · Secciones 3.1 a 3.6 y 3.9",
+        "icono": "⚙️",
     },
 ]
 
@@ -67,6 +67,150 @@ PALETA = [
     "#1d4ed8", "#0284c7", "#0d9488", "#2563eb",
     "#7c3aed", "#d97706", "#059669", "#dc2626",
 ]
+
+# Datos oficiales del Cap. 1 (Ciclo de vida y OpenLCA)
+CICLO_VIDA_DF = pd.DataFrame(
+    [
+        ("T1", 1, "Desarrollo", 0, "Diseño conceptual del producto"),
+        ("T2", 1, "Desarrollo", 0, "Diseño CAD, cálculos y selección de componentes"),
+        ("T3", 1, "Introducción", 15, "Fabricación del prototipo, programación e integración"),
+        ("T4", 1, "Introducción", 32, "Pruebas finales, lanzamiento y primeras ventas"),
+        ("T5", 2, "Crecimiento", 55, "Captación de clientes y aumento de ventas"),
+        ("T6", 2, "Crecimiento", 76, "Mejoras técnicas y expansión comercial"),
+        ("T7", 2, "Crecimiento", 92, "Incremento de producción y recuperación"),
+        ("T8", 2, "Madurez", 98, "Consolidación del producto en el mercado"),
+        ("T9", 3, "Madurez", 100, "Ventas elevadas y relativamente estables"),
+        ("T10", 3, "Madurez", 94, "Optimización de costos y mantenimiento"),
+        ("T11", 3, "Declinación", 68, "Reducción gradual de la demanda"),
+        ("T12", 3, "Declinación", 40, "Evaluación de actualización o reemplazo"),
+    ],
+    columns=["Trimestre", "Año", "Etapa", "Nivel relativo de ventas", "Actividad principal"],
+)
+
+OPENLCA_INV_DF = pd.DataFrame(
+    [
+        ("PET / PETG (estructura 3D)", "Polímeros", 0.440),
+        ("Acero laminado en caliente", "Metales y conductores", 0.200),
+        ("Polipropileno (PP)", "Polímeros", 0.100),
+        ("Alambre de cobre", "Metales y conductores", 0.065),
+        ("ABS", "Polímeros", 0.045),
+        ("Plomo (aprox. aporte)", "Metales y conductores", 0.045),
+        ("Poliamida PA 6", "Polímeros", 0.025),
+        ("Lámina de aluminio", "Metales y conductores", 0.015),
+        ("Resina PVC", "Polímeros", 0.015),
+        ("Fibra de vidrio continua", "Compuestos / otros", 0.008),
+    ],
+    columns=["Material", "Categoría", "Masa (kg)"],
+)
+
+# Datos oficiales del Cap. 2 (Tres Casas QFD y Análisis Competitivo)
+NECESIDADES_QFD_DF = pd.DataFrame(
+    [
+        (1, "Tiempo de soldadura", 25, 5, 5, 4, 3),
+        (2, "Precisión del punto de soldadura", 20, 4, 5, 4, 3),
+        (3, "Estabilidad de la PCB", 15, 5, 4, 5, 2),
+        (4, "Cantidad adecuada de inyección", 12, 4, 5, 3, 2),
+        (5, "Seguridad operativa", 10, 3, 3, 3, 4),
+        (6, "Evitar daños a los componentes", 7, 4, 4, 5, 2),
+        (7, "Disminución de costos", 6, 3, 4, 4, 3),
+        (8, "Ergonomía", 3, 4, 5, 5, 3),
+        (9, "Calidad de las uniones soldadas", 1, 5, 5, 5, 2),
+        (10, "Funcionamiento confiable y repetible", 1, 5, 3, 2, 5),
+    ],
+    columns=["N°", "Necesidad", "Importancia (%)", "Diseño Propio", "Apollo Seko", "Japan Unix", "Quick Soldering"],
+)
+
+CASA1_DF = pd.DataFrame(
+    [
+        ("Resolución de avance de estaño", 297, 13.2, "0,01 mm"),
+        ("Tiempo promedio de soldadura por punto", 238, 10.6, "≤ 10 s/punto"),
+        ("Temperatura de la punta", 225, 10.0, "380 °C"),
+        ("Desplazamiento de la PCB", 198, 8.8, "≤ 0,5°"),
+        ("Tasa de procesamiento visual", 189, 8.4, "≥ 30 fps"),
+        ("Diámetro de la punta", 189, 8.4, "0,9 mm"),
+        ("Espesor de la punta", 189, 8.4, "1,5 mm"),
+        ("Velocidad de retracción", 183, 8.1, "25 mm/s"),
+        ("Sistema de enfriamiento", 153, 6.8, "3 CFM"),
+        ("Distancia operador–máquina", 117, 5.2, "≥ 0,4 m"),
+        ("Tipo de corriente", 111, 4.9, "12 V DC"),
+        ("Intervenciones manuales por unión", 94, 4.2, "≤ 1 interv./unión"),
+        ("Costos de fabricación", 54, 2.4, "USD 100"),
+        ("Tipo de control automático", 12, 0.5, "PID visual"),
+    ],
+    columns=["Característica técnica", "Peso abs.", "Peso rel. (%)", "Valor objetivo"],
+)
+
+CASA2_DF = pd.DataFrame(
+    [
+        ("Tipo de punta (referencia externa)", 262.9, 14.9, "1,5 mm"),
+        ("Tipo de motor de paso", 245.4, 13.9, "30"),
+        ("Tipo de controlador", 197.3, 11.2, "240"),
+        ("Calidad de impresión", 169.3, 9.6, "0,16 mm"),
+        ("Tipos de ventiladores", 158.5, 9.0, "3 CFM"),
+        ("Corriente continua", 141.7, 8.0, "12 V DC"),
+        ("Tipo de cámara", 121.7, 6.9, "640×480"),
+        ("Programación con IA", 118.1, 6.7, "60"),
+        ("Calidad de los soportes", 113.4, 6.4, "0,6"),
+        ("Velocidad del brazo", 96.8, 5.5, "90"),
+        ("Tamaño de brazo", 68.4, 3.9, "300"),
+        ("Tipo de servomotores", 53.4, 3.0, "AC/DC"),
+        ("Tipos de filamento", 21.6, 1.2, "PETG"),
+    ],
+    columns=["Componente / subsistema", "Peso abs.", "Peso rel. (%)", "Objetivo"],
+)
+
+CASA3_DF = pd.DataFrame(
+    [
+        ("Error de localización de la punta", 221.9, 15.6),
+        ("Capacidad de procesamiento del controlador", 193.8, 13.6),
+        ("Longitud de las piezas", 148.1, 10.4),
+        ("Motor paso a paso PM", 124.9, 8.8),
+        ("Caudal de extracción de humos", 104.7, 7.3),
+        ("Resistencia mecánica de los soportes", 101.7, 7.1),
+        ("Servomotor DC (contingencia)", 99.3, 7.0),
+        ("Filamento PETG", 97.1, 6.8),
+        ("Torque de los servomotores", 96.5, 6.8),
+        ("Espesor de los soportes", 89.4, 6.3),
+        ("Altura de capa (impresión 3D)", 86.2, 6.0),
+        ("Cámara Web USB de alta velocidad", 61.9, 4.3),
+    ],
+    columns=["Parámetro de diseño", "Peso abs.", "Peso rel. (%)"],
+)
+
+# Datos oficiales del Cap. 3 (Módulos, Interfaces y Alternativas)
+MODULOS_LIST = [
+    ("M1", "Visión artificial", "F1", "Cámara web USB de alta velocidad, soporte elevado e iluminación", "≥ 30 fps · 640×480"),
+    ("M2", "Procesamiento y control", "F2, F3, F8", "Computador/Raspberry Pi + microcontrolador, control PID visual y límites virtuales", "≤ 10 s/punto · PID"),
+    ("M3", "Posicionamiento robótico", "F4, F9", "Brazo con motores a paso PM, estructura y soporte de PCB en PETG impreso", "PCB ≤ 0,5° · capa 0,16 mm"),
+    ("M4", "Extrusión de estaño", "F5", "Motor a paso con rodillos moleteados, guía PTFE y boquilla cónica", "Avance 0,01 mm · 25 mm/s"),
+    ("M5", "Alimentación eléctrica", "F7, F10", "Fuente 12 V DC, convertidores, protecciones y ventilador extractor", "12 V DC · 3 CFM"),
+    ("M6", "Seguridad e interfaz", "F6", "Gesto de palma abierta, paro físico de emergencia y paro por pérdida visual", "≥ 0,4 m · ≤ 1 interv."),
+]
+
+INTERFACES_DF = pd.DataFrame(
+    [
+        ("I1", "M1 ↔ M2", "Información", "Imagen y coordenadas detectadas (USB, 640×480)", "Latencia, ≥ 30 fps y error de localización"),
+        ("I2", "M2 → M3", "Control", "Órdenes de posición y trayectoria del brazo", "Error de posicionamiento y repetibilidad"),
+        ("I3", "M2 → M4", "Control", "Activación y velocidad de extrusión de estaño", "Sincronización y resolución de 0,01 mm"),
+        ("I4", "M3 ↔ M4", "Mecánica", "Unión física, posición y orientación del extrusor", "Rigidez, alineación y cero interferencias"),
+        ("I5", "M5 → M1–M4, M6", "Energía", "Bus de potencia 12 V DC y protecciones", "Separación potencia/señal y verificación eléctrica"),
+        ("I6", "M6 ↔ M2", "Seguridad", "Inicio, habilitación y parada de emergencia", "Ensayo de respuesta ante paro y fallos"),
+    ],
+    columns=["ID", "Módulos", "Tipo", "Intercambio", "Criterio de verificación"],
+)
+
+ALTERNATIVAS_DF = pd.DataFrame(
+    [
+        ("Accionamiento", "Motor paso a paso PM", "Servomotor DC con encoder", "Actuador lineal neumático"),
+        ("Visión", "Cámara web USB de alta velocidad", "Sistema de visión industrial", "Visión industrial"),
+        ("Alimentación de estaño", "Motor paso a paso con rodillos", "Motorreductor DC con rodillos", "No definida"),
+        ("Salida de estaño", "Guía PTFE y boquilla cónica", "Guía metálica y boquilla biselada", "Guía metálica"),
+        ("Estructura / límites", "PETG impreso 3D y límites por software", "Perfiles de aluminio y finales de carrera", "Estructura impresa"),
+        ("Seguridad", "Palma abierta + paro + pérdida visual", "Paro de emergencia + pérdida visual", "No definida"),
+        ("Estado", "SELECCIONADA (4,75 / 5)", "Alternativa robusta (3,45 / 5)", "DESCARTADA (filtro compatibilidad)"),
+    ],
+    columns=["Subfunción", "Alternativa A · QFD (Elegida)", "Alternativa B · Industrial", "Alternativa C · Neumática"],
+)
 
 # ==============================================================================
 # 4. ESTILOS WEB (ADAPTABLES A MODO CLARO Y MODO OSCURO)
@@ -108,16 +252,16 @@ st.markdown(
     }
     .hero-box h1 {
         color: #ffffff !important;
-        font-size: 2.1rem;
+        font-size: 2.08rem;
         font-weight: 800;
         margin: 0 0 0.55rem 0;
         line-height: 1.2;
     }
     .hero-box p {
         color: #e2e8f0 !important;
-        font-size: 1.01rem;
+        font-size: 1.0rem;
         margin: 0 0 1.15rem 0;
-        max-width: 880px;
+        max-width: 900px;
         line-height: 1.55;
     }
     .badge-row {
@@ -162,7 +306,7 @@ st.markdown(
     }
     .info-card p {
         margin: 0;
-        font-size: 0.92rem;
+        font-size: 0.91rem;
         line-height: 1.5;
         opacity: 0.92;
     }
@@ -177,21 +321,44 @@ st.markdown(
         height: 100%;
         margin-bottom: 0.8rem;
     }
-    .team-icon {font-size: 1.65rem; margin-bottom: 0.3rem;}
-    .team-name {font-size: 1.03rem; font-weight: 700; margin-bottom: 0.15rem;}
-    .team-major {font-size: 0.8rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.35rem;}
-    .team-role {font-size: 0.87rem; opacity: 0.88; margin-bottom: 0.5rem; line-height: 1.4;}
+    .team-icon {font-size: 1.6rem; margin-bottom: 0.3rem;}
+    .team-name {font-size: 1.0rem; font-weight: 700; margin-bottom: 0.15rem;}
+    .team-major {font-size: 0.79rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.35rem;}
+    .team-role {font-size: 0.86rem; opacity: 0.88; margin-bottom: 0.5rem; line-height: 1.4;}
     .team-cap {
         display: inline-block;
         background: rgba(2, 132, 199, 0.16);
         color: #38bdf8;
         padding: 0.2rem 0.6rem;
         border-radius: 8px;
-        font-size: 0.77rem;
+        font-size: 0.76rem;
         font-weight: 600;
     }
 
-    /* Cadena de trazabilidad metodológica */
+    /* Tarjetas de módulos M1-M6 */
+    .mod-card {
+        background: var(--secondary-background-color);
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-left: 4px solid #0d9488;
+        border-radius: 12px;
+        padding: 1rem 1.1rem;
+        height: 100%;
+        margin-bottom: 0.8rem;
+    }
+    .mod-head {font-size: 0.98rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.25rem;}
+    .mod-fn {font-size: 0.78rem; font-weight: 600; opacity: 0.8; margin-bottom: 0.35rem;}
+    .mod-body {font-size: 0.87rem; line-height: 1.45; margin-bottom: 0.45rem;}
+    .mod-meta {
+        display: inline-block;
+        background: rgba(13, 148, 136, 0.16);
+        color: #2dd4bf;
+        padding: 0.18rem 0.55rem;
+        border-radius: 8px;
+        font-size: 0.76rem;
+        font-weight: 600;
+    }
+
+    /* Cadena de trazabilidad */
     .flow-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -229,9 +396,9 @@ st.markdown(
     }
     .stTabs [data-baseweb="tab"] {
         border-radius: 10px 10px 0 0;
-        padding: 0.55rem 1.05rem;
+        padding: 0.55rem 1.0rem;
         font-weight: 600;
-        font-size: 0.91rem;
+        font-size: 0.90rem;
     }
 
     /* Botón principal de envío */
@@ -320,7 +487,6 @@ def extraer_serie_numerica(serie: pd.Series) -> pd.Series:
     validos = serie.dropna().astype(str)
     if len(validos) == 0:
         return pd.Series(np.nan, index=serie.index, dtype=float)
-    # Evita confundir rangos como "1 a 3 mm" o "menos de 2 minutos" con escalas numéricas
     if validos.str.contains(r"\ba\b|\bmm\b|\bminuto", case=False, regex=True).mean() > 0.30:
         return pd.Series(np.nan, index=serie.index, dtype=float)
     extraida = validos.str.extract(r"(\d+(?:\.\d+)?)")[0]
@@ -425,7 +591,7 @@ def construir_resumen_qfd(df: pd.DataFrame, cols_cat: list) -> pd.DataFrame:
                 "Preferencia dominante": str(top["Categoría"]),
                 "Respuestas (n)": int(top["Frecuencia"]),
                 "Consenso (%)": round(pct, 1),
-                "Peso QFD (1–5)": peso_qfd,
+                "Peso encuestas (1–5)": peso_qfd,
                 "Prioridad": prioridad,
             }
         )
@@ -464,7 +630,7 @@ meta = clasificar_columnas(df_original) if not df_original.empty else {
 
 with st.sidebar:
     st.markdown("## 🎛️ Panel de control")
-    st.caption("Facultad de Ingeniería Mecánica · EPN · Diseño de Máquinas")
+    st.caption("Facultad de Ingeniería Mecánica · EPN · GR1S4")
 
     if not df_original.empty and meta["perfil"]:
         st.subheader("Filtro de muestra real")
@@ -482,19 +648,19 @@ with st.sidebar:
         df_filtrado = df_original.copy()
 
     st.divider()
-    st.subheader("Visualización")
+    st.subheader("Visualización de encuestas")
     tipo_grafico = st.radio(
         "Estilo principal en analítica:",
         ["Dona + Barras (%)", "Solo Dona (%)", "Solo Barras horizontales (%)"],
         index=0,
     )
     umbral_consenso = st.slider(
-        "Umbral de prioridad alta QFD (%)",
+        "Umbral de consenso alto (%)",
         min_value=30,
         max_value=75,
         value=50,
         step=5,
-        help="Define a partir de qué porcentaje de consenso una necesidad se clasifica como crítica.",
+        help="Clasifica las preferencias dominantes de la encuesta según el porcentaje de acuerdo.",
     )
 
     st.divider()
@@ -503,8 +669,8 @@ with st.sidebar:
         st.rerun()
 
     st.caption(
-        "Los datos mostrados provienen en tiempo real de respuestas reales anonimizadas "
-        "almacenadas en Google Sheets."
+        "Respuestas reales anonimizadas conectadas a Google Sheets + "
+        "resultados trazables de los Capítulos 1, 2 y 3 (Fase 1)."
     )
 
 meta_f = clasificar_columnas(df_filtrado) if not df_filtrado.empty else meta
@@ -515,18 +681,18 @@ meta_f = clasificar_columnas(df_filtrado) if not df_filtrado.empty else meta
 st.markdown(
     """
 <div class="hero-box">
-    <div class="hero-pill">ESCUELA POLITÉCNICA NACIONAL · INGENIERÍA MECATRÓNICA · DISEÑO DE MÁQUINAS</div>
-    <h1>Tercera Mano Robótica para Soldadura de Placas (PCBs)</h1>
+    <div class="hero-pill">ESCUELA POLITÉCNICA NACIONAL · FACULTAD DE INGENIERÍA MECÁNICA · GR1S4</div>
+    <h1>Brazo Robótico Asistente de Soldadura de Placas PCB</h1>
     <p>
-        Plataforma interactiva de levantamiento de requerimientos y análisis estadístico en tiempo real
-        para el diseño conceptual de un asistente robótico con visión por computadora capaz de rastrear
-        la punta del cautín y suministrar estaño en frío con precisión.
+        Plataforma interactiva de la Primera Fase del Proyecto Integrador de Diseño de Máquinas:
+        integra nuestra encuesta pública en vivo, análisis estadístico con porcentajes, ciclo de vida
+        preliminar (OpenLCA), tres Casas de Calidad (QFD) y selección conceptual modular.
     </p>
     <div class="badge-row">
-        <span class="badge-item">🤖 Asistente con Visión Artificial</span>
-        <span class="badge-item">📊 Analítica Real con Porcentajes</span>
+        <span class="badge-item">🤖 Visión Artificial + Extrusor 0,01 mm</span>
+        <span class="badge-item">💵 Costo objetivo: USD 100</span>
         <span class="badge-item">🔒 Datos 100 % Anonimizados</span>
-        <span class="badge-item">📐 Trazabilidad hacia QFD · Fase 1</span>
+        <span class="badge-item">🏆 Concepto Elegido: Alternativa A (4,75/5)</span>
     </div>
 </div>
 """,
@@ -538,9 +704,9 @@ total_muestra = len(df_original)
 total_filtrado = len(df_filtrado)
 
 k1.metric(
-    "Respuestas analizadas",
+    "Respuestas reales",
     f"{total_filtrado:,}",
-    delta=f"de {total_muestra:,} reales" if total_filtrado != total_muestra else "100 % de la muestra",
+    delta=f"de {total_muestra:,} registradas" if total_filtrado != total_muestra else "100 % de la muestra",
 )
 
 if meta_f["frustracion"] and meta_f["frustracion"] in meta_f["numericas"]:
@@ -549,24 +715,12 @@ if meta_f["frustracion"] and meta_f["frustracion"] in meta_f["numericas"]:
     prom = float(serie_num.mean()) if len(serie_num) > 0 else 0.0
     desv = float(serie_num.std()) if len(serie_num) > 1 else 0.0
     mediana = float(serie_num.median()) if len(serie_num) > 0 else 0.0
-    k2.metric("Frustración promedio", f"{prom:.2f} / {escala_max}", delta=f"Mediana: {mediana:.1f}")
-    k3.metric("Desviación estándar", f"{desv:.2f}", delta=f"n válido: {len(serie_num)}")
+    k2.metric("Frustración promedio", f"{prom:.2f} / {escala_max}", delta=f"Mediana: {mediana:.1f} · s={desv:.2f}")
 else:
     k2.metric("Preguntas evaluadas", f"{len(meta_f['categoricas'])}")
-    k3.metric("Columnas en la base", f"{len(df_filtrado.columns)}")
 
-if not df_filtrado.empty and meta_f["perfil"]:
-    tf_perfil = tabla_frecuencias(df_filtrado[meta_f["perfil"]])
-    if not tf_perfil.empty:
-        k4.metric(
-            "Perfil predominante",
-            acortar_etiqueta(tf_perfil.iloc[0]["Categoría"], 18),
-            delta=f"{tf_perfil.iloc[0]['Porcentaje (%)']:.1f} % ({int(tf_perfil.iloc[0]['Frecuencia'])})",
-        )
-    else:
-        k4.metric("Perfil predominante", "—")
-else:
-    k4.metric("Estado de conexión", "Sin datos" if error_carga else "En espera")
+k3.metric("Puntaje competitivo QFD", "4,26 / 5", delta="2.º lugar (Apollo Seko: 4,50)")
+k4.metric("Concepto ganador (Cap. 3)", "Alternativa A", delta="4,75 vs 3,45 (Alt. B)")
 
 if error_carga:
     st.error(
@@ -580,25 +734,26 @@ if error_carga:
 # ==============================================================================
 tabs = st.tabs(
     [
-        "🏠 1 · Quiénes somos y Proyecto",
+        "🏠 1 · Quiénes somos y Cap. 1",
         "📝 2 · Responder Encuesta",
         "📊 3 · Gráficas y Porcentajes",
         "🔀 4 · Cruces y Mapa de Calor",
-        "📐 5 · Del Dato al QFD",
-        "📑 6 · Metodología y Descargas",
+        "📐 5 · Tres Casas QFD",
+        "⚙️ 6 · Módulos, Sensibilidad y Datos",
     ]
 )
 
 # ------------------------------------------------------------------------------
-# PESTAÑA 1: QUIÉNES SOMOS, PROBLEMA Y ARQUITECTURA DIDÁCTICA
+# PESTAÑA 1: QUIÉNES SOMOS, PLANTEAMIENTO, CICLO DE VIDA Y OPENLCA (CAP. 1)
 # ------------------------------------------------------------------------------
 with tabs[0]:
     st.subheader("¿Quiénes somos?")
     st.write(
-        "Somos un equipo de estudiantes de **Ingeniería Mecatrónica** de la "
-        "**Facultad de Ingeniería Mecánica** de la **Escuela Politécnica Nacional (EPN)**. "
-        "Esta plataforma forma parte de la **Primera Fase del Proyecto Integrador de Diseño de Máquinas**, "
-        "orientada a transformar necesidades reales de usuarios en especificaciones técnicas auditables."
+        "Somos estudiantes de **Ingeniería Mecatrónica** de la **Facultad de Ingeniería Mecánica** "
+        "de la **Escuela Politécnica Nacional (EPN)**, paralelo **GR1S4**. Esta plataforma digital "
+        "respalda la **Primera Fase (Diseño Conceptual y Selección de Soluciones)** del proyecto "
+        "**Brazo Robótico Asistente de Soldadura de Placas PCB**, garantizando trazabilidad completa "
+        "desde los datos de usuarios hasta la configuración modular seleccionada."
     )
 
     cols_eq = st.columns(4)
@@ -618,16 +773,16 @@ with tabs[0]:
             )
 
     st.divider()
-    st.subheader("¿Qué máquina estamos diseñando?")
+    st.subheader("Planteamiento, alcance y exclusiones (Capítulo 1)")
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown(
             """
             <div class="info-card">
-                <h4>⚠️ El problema real al soldar</h4>
-                <p>Soldar placas electrónicas exige coordinar tres elementos simultáneos:
-                sujetar el componente o PCB, controlar el cautín caliente y acercar el hilo
-                de estaño con precisión, generando fatiga, soldaduras frías y riesgo de quemaduras.</p>
+                <h4>🎯 Objetivo general</h4>
+                <p>Diseñar un brazo robótico asistente que detecte y siga la punta del cautín
+                mediante visión artificial para posicionar un mecanismo extrusor capaz de
+                suministrar alambre de estaño de forma controlada y coordinada con el operador.</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -636,10 +791,10 @@ with tabs[0]:
         st.markdown(
             """
             <div class="info-card">
-                <h4>👁️ Visión artificial y automatización</h4>
-                <p>El concepto integra una cámara superior con procesamiento local para
-                identificar la posición de la punta del cautín, coordinando un mecanismo
-                alimentador de estaño en frío y un sistema de extracción de humos.</p>
+                <h4>⚠️ Problema abordado</h4>
+                <p>El operador usa ambas manos para manipular cautín y estaño, dificultando
+                estabilizar la PCB. Esto genera errores de coordinación, dosificación irregular,
+                mayor tiempo por punto, fatiga ergonómica y exposición a humos del fundente.</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -648,10 +803,10 @@ with tabs[0]:
         st.markdown(
             """
             <div class="info-card">
-                <h4>🎯 Propósito de esta plataforma</h4>
-                <p>Recopilar respuestas reales de estudiantes, técnicos y aficionados,
-                analizarlas estadísticamente en vivo y derivar pesos objetivos para las
-                tres Casas de Calidad (QFD) y la arquitectura modular de la máquina.</p>
+                <h4>🚧 Exclusiones claras (Fase 1)</h4>
+                <p>El sistema <b>no regula la temperatura del cautín</b> ni sustituye al operador.
+                Opera únicamente dentro de un área cuadrada definida; fuera de ella regresa a
+                posición de control. El CAD definitivo y pruebas físicas pasan a la Fase 2.</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -663,16 +818,60 @@ with tabs[0]:
         <div class="flow-grid">
             <div class="flow-step"><div class="flow-num">1</div><div class="flow-title">Encuesta Real</div><div class="flow-desc">Datos anónimos en Python y Streamlit</div></div>
             <div class="flow-step"><div class="flow-num">2</div><div class="flow-title">Estadística</div><div class="flow-desc">Porcentajes, cruces y dispersión</div></div>
-            <div class="flow-step"><div class="flow-num">3</div><div class="flow-title">Necesidades</div><div class="flow-desc">Jerarquización de la Voz del Cliente</div></div>
-            <div class="flow-step"><div class="flow-num">4</div><div class="flow-title">3 Casas QFD</div><div class="flow-desc">Parámetros y subsistemas críticos</div></div>
-            <div class="flow-step"><div class="flow-num">5</div><div class="flow-title">Módulos</div><div class="flow-desc">Matriz morfológica y selección</div></div>
-            <div class="flow-step"><div class="flow-num">6</div><div class="flow-title">Boceto IA</div><div class="flow-desc">Refinamiento iterativo validado</div></div>
+            <div class="flow-step"><div class="flow-num">3</div><div class="flow-title">3 Casas QFD</div><div class="flow-desc">14 req., 13 comp. y 12 parámetros</div></div>
+            <div class="flow-step"><div class="flow-num">4</div><div class="flow-title">Módulos M1–M6</div><div class="flow-desc">10 funciones y 6 interfaces</div></div>
+            <div class="flow-step"><div class="flow-num">5</div><div class="flow-title">Selección A vs B</div><div class="flow-desc">Matriz ponderada y sensibilidad</div></div>
+            <div class="flow-step"><div class="flow-num">6</div><div class="flow-title">Boceto con IA</div><div class="flow-desc">Refinamiento iterativo validado</div></div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.info("👉 Selecciona la pestaña **2 · Responder Encuesta** para participar o **3 · Gráficas y Porcentajes** para explorar el análisis interactivo.")
+    st.divider()
+    st.subheader("Ciclo de vida comercial (3 años) y análisis preliminar OpenLCA")
+    cv1, cv2 = st.columns(2)
+    with cv1:
+        fig_cv = px.area(
+            CICLO_VIDA_DF,
+            x="Trimestre",
+            y="Nivel relativo de ventas",
+            markers=True,
+            hover_data=["Año", "Etapa", "Actividad principal"],
+            title="Curva conceptual del ciclo de vida (12 trimestres · 3 años)",
+            color_discrete_sequence=["#1d4ed8"],
+        )
+        fig_cv.update_traces(line=dict(width=3), fillcolor="rgba(29, 78, 216, 0.16)")
+        fig_cv.update_layout(yaxis_title="Nivel relativo (escala conceptual)", xaxis_title="Trimestre")
+        st.plotly_chart(estilizar_figura(fig_cv, 360), width="stretch")
+
+    with cv2:
+        masa_total = float(OPENLCA_INV_DF["Masa (kg)"].sum())
+        masa_pol = float(OPENLCA_INV_DF.loc[OPENLCA_INV_DF["Categoría"] == "Polímeros", "Masa (kg)"].sum())
+        fig_lca = px.bar(
+            OPENLCA_INV_DF.sort_values("Masa (kg)", ascending=True),
+            x="Masa (kg)",
+            y="Material",
+            color="Categoría",
+            orientation="h",
+            text_auto=".3f",
+            color_discrete_map={
+                "Polímeros": "#0284c7",
+                "Metales y conductores": "#1d4ed8",
+                "Compuestos / otros": "#0d9488",
+            },
+            title=f"Inventario preliminar OpenLCA (1 unidad · {masa_total:.3f} kg)",
+        )
+        fig_lca.update_traces(textposition="outside")
+        fig_lca.update_layout(xaxis_range=[0, 0.54], yaxis_title="")
+        st.plotly_chart(estilizar_figura(fig_lca, 360), width="stretch")
+
+    st.info(
+        f"**Resumen ambiental preliminar (OpenLCA):** Unidad funcional de 1 brazo robótico "
+        f"(masa estimada: {masa_total:.3f} kg; polímeros: {masa_pol / masa_total * 100:.1f} %). "
+        "Incluye 0,05 kWh de electricidad inicial y 0,24 t·km de transporte. Las emisiones preliminares "
+        "de CO₂ contabilizadas ascienden a **1,263 kg** (100 % aguas arriba) y deberán actualizarse "
+        "con las masas CAD definitivas en la segunda fase."
+    )
 
 # ------------------------------------------------------------------------------
 # PESTAÑA 2: FORMULARIO PÚBLICO OPERATIVO (9 PREGUNTAS EXACTAS)
@@ -791,7 +990,7 @@ with tabs[1]:
 # PESTAÑA 3: GRÁFICAS INTERACTIVAS CON PORCENTAJES (DETALLE + VISTA GLOBAL)
 # ------------------------------------------------------------------------------
 with tabs[2]:
-    st.subheader("Análisis estadístico interactivo con porcentajes")
+    st.subheader("Análisis estadístico interactivo de la encuesta (datos reales)")
 
     if df_filtrado.empty or not meta_f["categoricas"]:
         st.info("No hay datos disponibles para graficar con el filtro actual.")
@@ -926,7 +1125,7 @@ with tabs[2]:
                 st.plotly_chart(estilizar_figura(fig_hist, 340), width="stretch")
 
         st.divider()
-        st.subheader("Vista panorámica de todas las preguntas (%)")
+        st.subheader("Vista panorámica de las 9 preguntas (%)")
         st.caption("Resumen visual completo para revisar rápidamente el comportamiento de toda la encuesta.")
 
         cols_vista = meta_f["categoricas"]
@@ -960,7 +1159,7 @@ with tabs[2]:
 with tabs[3]:
     st.subheader("Cruces de variables y tabla de contingencia")
     st.write(
-        "Compara dos preguntas simultáneamente para detectar cómo varían las preferencias "
+        "Compara dos preguntas simultáneamente para detectar cómo cambian las preferencias "
         "técnicas según el perfil del usuario (por ejemplo, experiencia frente al método de activación)."
     )
 
@@ -1020,171 +1219,295 @@ with tabs[3]:
             st.dataframe(matriz, width="stretch")
 
 # ------------------------------------------------------------------------------
-# PESTAÑA 5: DEL DATO AL DISEÑO CONCEPTUAL Y QFD (SECCIONES 2.5 – 2.9)
+# PESTAÑA 5: TRES CASAS DE CALIDAD (QFD) Y ANÁLISIS COMPETITIVO (CAP. 2)
 # ------------------------------------------------------------------------------
 with tabs[4]:
-    st.subheader("Jerarquización de necesidades y puente hacia el QFD")
+    st.subheader("Despliegue de la Función de Calidad (3 Casas QFD · Cap. 2)")
     st.write(
-        "Esta sección traduce automáticamente las respuestas reales de la encuesta en pesos "
-        "relativos de la Voz del Cliente (sección 2.5) para alimentar la **Primera Casa de Calidad**."
+        "Visualización trazable de las **tres Casas de Calidad** del proyecto: continuidad "
+        "exacta desde las 10 necesidades ponderadas hacia 14 características técnicas (Casa 1), "
+        "13 componentes/subsistemas (Casa 2) y 12 parámetros de diseño (Casa 3)."
     )
 
-    if not df_filtrado.empty and meta_f["categoricas"]:
-        qfd_df = construir_resumen_qfd(df_filtrado, meta_f["categoricas"])
-        if not qfd_df.empty:
-            qfd_df["Prioridad"] = np.where(
-                qfd_df["Consenso (%)"] >= umbral_consenso,
-                "Alta (Crítica)",
-                np.where(qfd_df["Consenso (%)"] >= umbral_consenso - 15, "Media", "Moderada"),
+    casa_sel = st.radio(
+        "Selecciona la Casa de Calidad a explorar:",
+        [
+            "Casa 1 · Características técnicas (14)",
+            "Casa 2 · Componentes y subsistemas (13)",
+            "Casa 3 · Parámetros de diseño (12)",
+        ],
+        horizontal=True,
+    )
+
+    if "Casa 1" in casa_sel:
+        q1, q2 = st.columns([3, 2])
+        with q1:
+            fig_c1 = px.bar(
+                CASA1_DF.sort_values("Peso rel. (%)", ascending=True),
+                x="Peso rel. (%)",
+                y="Característica técnica",
+                orientation="h",
+                text="Peso rel. (%)",
+                color="Peso rel. (%)",
+                color_continuous_scale="Blues",
+                hover_data=["Peso abs.", "Valor objetivo"],
+                title="Casa 1: Priorización de características técnicas (%)",
             )
+            fig_c1.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
+            fig_c1.update_layout(coloraxis_showscale=False, xaxis_range=[0, 16.5], yaxis_title="")
+            st.plotly_chart(estilizar_figura(fig_c1, 460), width="stretch")
+        with q2:
+            st.markdown("**Objetivos técnicos prioritarios (Tabla II y III)**")
+            st.dataframe(CASA1_DF, hide_index=True, width="stretch")
+            st.caption("Las 4 características líderes (resolución de estaño, tiempo por punto, temperatura y estabilidad de PCB) concentran el 42,6 % del peso.")
 
-            col_q1, col_q2 = st.columns([3, 2])
-            with col_q1:
-                st.markdown("**Tabla priorizada de necesidades (entrada directa a Casa 1 del QFD)**")
-                st.dataframe(qfd_df, hide_index=True, width="stretch")
-
-            with col_q2:
-                fig_qfd = px.bar(
-                    qfd_df.sort_values("Peso QFD (1–5)", ascending=True),
-                    x="Peso QFD (1–5)",
-                    y="Dimensión / Pregunta",
-                    orientation="h",
-                    color="Prioridad",
-                    text="Peso QFD (1–5)",
-                    color_discrete_map={
-                        "Alta (Crítica)": "#1d4ed8",
-                        "Media": "#0284c7",
-                        "Moderada": "#64748b",
-                    },
-                    title="Peso relativo normalizado (1 a 5)",
-                )
-                fig_qfd.update_traces(textposition="outside")
-                fig_qfd.update_layout(xaxis_range=[0, 5.6], yaxis_title="")
-                st.plotly_chart(estilizar_figura(fig_qfd, 400), width="stretch")
-
-            st.divider()
-            st.subheader("Simulador interactivo del perfil de requerimientos (Radar de Diseño)")
-            st.caption(
-                "Ajusta la importancia de los 6 ejes de ingeniería para explorar el equilibrio "
-                "conceptual de la Tercera Mano Robótica antes de fijar las ponderaciones definitivas."
+    elif "Casa 2" in casa_sel:
+        q1, q2 = st.columns([3, 2])
+        with q1:
+            fig_c2 = px.bar(
+                CASA2_DF.sort_values("Peso rel. (%)", ascending=True),
+                x="Peso rel. (%)",
+                y="Componente / subsistema",
+                orientation="h",
+                text="Peso rel. (%)",
+                color="Peso rel. (%)",
+                color_continuous_scale="Teal",
+                hover_data=["Peso abs.", "Objetivo"],
+                title="Casa 2: Priorización de componentes y subsistemas (%)",
             )
+            fig_c2.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
+            fig_c2.update_layout(coloraxis_showscale=False, xaxis_range=[0, 18.0], yaxis_title="")
+            st.plotly_chart(estilizar_figura(fig_c2, 460), width="stretch")
+        with q2:
+            st.markdown("**Componentes priorizados (Tabla V)**")
+            st.dataframe(CASA2_DF, hide_index=True, width="stretch")
+            st.caption("La punta del cautín (referencia externa), el motor de paso del extrusor y el controlador reúnen el 40,0 % del peso.")
 
-            r_col1, r_col2 = st.columns([1, 2])
-            with r_col1:
-                w_prec = st.slider("Precisión y dosificación de estaño (mm)", 1, 5, 5)
-                w_seg = st.slider("Seguridad térmica y estabilidad", 1, 5, 5)
-                w_erg = st.slider("Ergonomía y manos libres", 1, 5, 4)
-                w_vel = st.slider("Rapidez de calibración (< 2 min)", 1, 5, 4)
-                w_priv = st.slider("Visión artificial 100 % local", 1, 5, 4)
-                w_cost = st.slider("Costo accesible / fabricabilidad", 1, 5, 3)
-
-            with r_col2:
-                categorias_radar = [
-                    "Precisión",
-                    "Seguridad térmica",
-                    "Ergonomía",
-                    "Calibración rápida",
-                    "Visión local",
-                    "Accesibilidad",
-                ]
-                valores_radar = [w_prec, w_seg, w_erg, w_vel, w_priv, w_cost]
-                fig_radar = go.Figure(
-                    data=go.Scatterpolar(
-                        r=valores_radar + [valores_radar[0]],
-                        theta=categorias_radar + [categorias_radar[0]],
-                        fill="toself",
-                        line_color="#0284c7",
-                        fillcolor="rgba(2, 132, 199, 0.25)",
-                        name="Perfil objetivo",
-                    )
-                )
-                fig_radar.update_layout(
-                    polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
-                    showlegend=False,
-                    title="Equilibrio conceptual de requerimientos técnicos",
-                )
-                st.plotly_chart(estilizar_figura(fig_radar, 390), width="stretch")
-
-            st.divider()
-            st.markdown("**Traducción preliminar de requerimientos técnicos (puente hacia Sección 2.6 y Capítulo 3)**")
-            matriz_puente = pd.DataFrame(
-                [
-                    ["Dosificación controlada de estaño", "Encuesta · Pregunta 6", "Avance configurable (1–6 mm / ajustable)", "Motor paso a paso + extrusor de estaño en frío"],
-                    ["Seguimiento de la punta del cautín", "Encuesta · Pregunta 8", "Procesamiento local sin grabación en la nube", "Cámara cenital + modelo de detección local"],
-                    ["Activación ergonómica manos libres", "Encuesta · Pregunta 5", "Disparo sin soltar el cautín", "Pedal de pie / comando gestual / botón de proximidad"],
-                    ["Estabilidad y seguridad térmica", "Encuesta · Pregunta 7", "Base estable y resistente a salpicaduras/calor", "Estructura rígida + boquilla resistente a >250 °C"],
-                    ["Calibración ágil", "Encuesta · Pregunta 9", "Puesta a punto rápida (< 2 min)", "Referencia visual fija en el área de trabajo"],
-                ],
-                columns=["Necesidad del usuario", "Origen trazable", "Objetivo preliminar", "Subsistema o módulo asociado"],
-            )
-            st.dataframe(matriz_puente, hide_index=True, width="stretch")
     else:
-        st.info("Carga datos reales en la hoja para generar la matriz QFD preliminar.")
+        q1, q2 = st.columns([3, 2])
+        with q1:
+            fig_c3 = px.bar(
+                CASA3_DF.sort_values("Peso rel. (%)", ascending=True),
+                x="Peso rel. (%)",
+                y="Parámetro de diseño",
+                orientation="h",
+                text="Peso rel. (%)",
+                color="Peso rel. (%)",
+                color_continuous_scale="Purples",
+                hover_data=["Peso abs."],
+                title="Casa 3: Priorización de parámetros de diseño (%)",
+            )
+            fig_c3.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
+            fig_c3.update_layout(coloraxis_showscale=False, xaxis_range=[0, 19.0], yaxis_title="")
+            st.plotly_chart(estilizar_figura(fig_c3, 460), width="stretch")
+        with q2:
+            st.markdown("**Parámetros críticos de ingeniería (Tabla VI)**")
+            st.dataframe(CASA3_DF, hide_index=True, width="stretch")
+            st.caption("El error de localización de la punta (15,6 %) y la capacidad del controlador (13,6 %) lideran con 29,2 % combinado.")
+
+    st.divider()
+    st.subheader("Evaluación competitiva frente a equipos comerciales (Tabla IV)")
+    rc1, rc2 = st.columns([3, 2])
+    with rc1:
+        equipos_sel = st.multiselect(
+            "Equipos a comparar en el gráfico radar:",
+            ["Diseño Propio", "Apollo Seko", "Japan Unix", "Quick Soldering"],
+            default=["Diseño Propio", "Apollo Seko", "Japan Unix", "Quick Soldering"],
+        )
+        colores_comp = {
+            "Diseño Propio": "#0284c7",
+            "Apollo Seko": "#059669",
+            "Japan Unix": "#7c3aed",
+            "Quick Soldering": "#d97706",
+        }
+        cats_short = [acortar_etiqueta(n, 22) for n in NECESIDADES_QFD_DF["Necesidad"]]
+        fig_radar = go.Figure()
+        for eq in equipos_sel:
+            vals = NECESIDADES_QFD_DF[eq].tolist()
+            fig_radar.add_trace(
+                go.Scatterpolar(
+                    r=vals + [vals[0]],
+                    theta=cats_short + [cats_short[0]],
+                    fill="toself" if eq == "Diseño Propio" else "none",
+                    name=eq,
+                    line=dict(color=colores_comp[eq], width=2.5 if eq == "Diseño Propio" else 1.8),
+                )
+            )
+        fig_radar.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
+            title="Comparación de desempeño por necesidad (escala 0–5)",
+        )
+        st.plotly_chart(estilizar_figura(fig_radar, 430), width="stretch")
+
+    with rc2:
+        st.markdown("**Puntaje ponderado global (Tabla IV)**")
+        imp_vec = NECESIDADES_QFD_DF["Importancia (%)"] / 100.0
+        res_comp = pd.DataFrame(
+            [
+                (eq, round(float((imp_vec * NECESIDADES_QFD_DF[eq]).sum()), 2))
+                for eq in ["Apollo Seko", "Diseño Propio", "Japan Unix", "Quick Soldering"]
+            ],
+            columns=["Equipo", "Puntaje ponderado (0–5)"],
+        ).sort_values("Puntaje ponderado (0–5)", ascending=False)
+        st.dataframe(res_comp, hide_index=True, width="stretch")
+
+        st.info(
+            "Nuestro diseño logra **4,26/5**, superando a Japan Unix (4,02) y Quick Soldering (2,77), "
+            "quedando a solo 0,24 puntos de Apollo Seko (4,50) con un costo objetivo de USD 100."
+        )
+
+    if not df_filtrado.empty and meta_f["categoricas"]:
+        st.divider()
+        st.subheader("Voz del Cliente desde la encuesta en vivo (Sección 2.5)")
+        qfd_enc = construir_resumen_qfd(df_filtrado, meta_f["categoricas"])
+        if not qfd_enc.empty:
+            qfd_enc["Prioridad"] = np.where(
+                qfd_enc["Consenso (%)"] >= umbral_consenso,
+                "Alta (Crítica)",
+                np.where(qfd_enc["Consenso (%)"] >= umbral_consenso - 15, "Media", "Moderada"),
+            )
+            st.dataframe(qfd_enc, hide_index=True, width="stretch")
 
 # ------------------------------------------------------------------------------
-# PESTAÑA 6: METODOLOGÍA Y DESCARGAS VERIFICABLES
+# PESTAÑA 6: MÓDULOS, SIMULADOR DE SENSIBILIDAD (CAP. 3) Y DESCARGAS
 # ------------------------------------------------------------------------------
 with tabs[5]:
-    st.subheader("Metodología, rigor técnico y exportación de evidencias")
+    st.subheader("Arquitectura modular seleccionada: Alternativa A (Capítulo 3)")
+    st.write(
+        "El sistema se descompone en **10 funciones** (5 principales y 5 secundarias) agrupadas en "
+        "**6 módulos físicos (M1–M6)** conectados mediante **6 interfaces verificables (I1–I6)**."
+    )
 
-    with st.expander("Fórmulas estadísticas y criterios de trazabilidad", expanded=True):
+    for i in range(0, len(MODULOS_LIST), 3):
+        cols_m = st.columns(3)
+        for j in range(3):
+            if i + j < len(MODULOS_LIST):
+                mid, mnom, mfns, msol, mref = MODULOS_LIST[i + j]
+                with cols_m[j]:
+                    st.markdown(
+                        f"""
+                        <div class="mod-card">
+                            <div class="mod-head">{mid} · {mnom}</div>
+                            <div class="mod-fn">Funciones cubiertas: {mfns}</div>
+                            <div class="mod-body">{msol}</div>
+                            <span class="mod-meta">Meta QFD: {mref}</span>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+
+    with st.expander("Ver interfaces entre módulos (Tabla XI) y comparación de alternativas (Tabla XIII)", expanded=False):
+        st.markdown("**Interfaces M1–M6 y criterios de verificación**")
+        st.dataframe(INTERFACES_DF, hide_index=True, width="stretch")
+        st.markdown("**Alternativas de la matriz morfológica (A, B y C)**")
+        st.dataframe(ALTERNATIVAS_DF, hide_index=True, width="stretch")
+
+    st.divider()
+    st.subheader("Simulador interactivo de Matriz de Decisión y Sensibilidad (Tablas XV y XVI)")
+    st.write(
+        "Ajusta los pesos de los tres criterios de ingeniería para verificar en vivo la robustez "
+        "de la selección entre la **Alternativa A (QFD)** y la **Alternativa B (Industrial)**."
+    )
+
+    s1, s2 = st.columns([1, 2])
+    with s1:
+        st.markdown("**Pesos personalizados (se normalizan a 100 %)**")
+        w_qfd_raw = st.slider("Alineación con el QFD (Base: 40 %)", 5, 80, 40, 5)
+        w_fab_raw = st.slider("Fabricación y costo (Base: 35 %)", 5, 80, 35, 5)
+        w_man_raw = st.slider("Mantenimiento y control (Base: 25 %)", 5, 80, 25, 5)
+
+        suma_w = w_qfd_raw + w_fab_raw + w_man_raw
+        wq = w_qfd_raw / suma_w
+        wf = w_fab_raw / suma_w
+        wm = w_man_raw / suma_w
+        st.caption(f"Pesos normalizados → QFD: **{wq*100:.1f}%** · Fab./Costo: **{wf*100:.1f}%** · Mant.: **{wm*100:.1f}%**")
+
+        score_a = wq * 5 + wf * 5 + wm * 4
+        score_b = wq * 5 + wf * 2 + wm * 3
+        st.metric("Puntaje Alternativa A (QFD)", f"{score_a:.2f} / 5", delta=f"+{score_a - score_b:.2f} sobre B")
+        st.metric("Puntaje Alternativa B (Industrial)", f"{score_b:.2f} / 5")
+
+    with s2:
+        escenarios_df = pd.DataFrame(
+            [
+                ("Escenario actual", score_a, score_b),
+                ("Base (40/35/25)", 4.75, 3.45),
+                ("Prioridad QFD (60/20/20)", 4.80, 4.00),
+                ("Pesos iguales (33/33/33)", 4.67, 3.33),
+                ("Prioridad costo (25/50/25)", 4.75, 3.00),
+                ("Prioridad mant. (25/25/50)", 4.50, 3.25),
+                ("Casi solo QFD (70/10/20)", 4.80, 4.30),
+            ],
+            columns=["Escenario", "Concepto A (QFD)", "Concepto B (Industrial)"],
+        )
+        esc_long = escenarios_df.melt(id_vars="Escenario", var_name="Alternativa", value_name="Puntaje")
+        fig_sens = px.bar(
+            esc_long,
+            x="Escenario",
+            y="Puntaje",
+            color="Alternativa",
+            barmode="group",
+            text_auto=".2f",
+            color_discrete_map={
+                "Concepto A (QFD)": "#1d4ed8",
+                "Concepto B (Industrial)": "#d97706",
+            },
+            title="Análisis de sensibilidad: puntaje ponderado por escenario (1–5)",
+        )
+        fig_sens.update_layout(yaxis_range=[0, 5.6], xaxis_title="")
+        st.plotly_chart(estilizar_figura(fig_sens, 400), width="stretch")
+
+    st.divider()
+    st.subheader("Metodología, fórmulas verificables y descarga de evidencias")
+
+    with st.expander("Fórmulas estadísticas, QFD y decisión ponderada", expanded=False):
         st.markdown(
             """
-            * **Frecuencia relativa (%):** $f_r = \\frac{n_i}{N} \\times 100$, calculada sobre respuestas válidas no nulas ($N$).
-            * **Media aritmética (escala de frustración 1–5):** $\\bar{x} = \\frac{1}{N} \\sum_{i=1}^{N} x_i$.
-            * **Desviación estándar muestral:** $s = \\sqrt{\\frac{1}{N-1} \\sum_{i=1}^{N} (x_i - \\bar{x})^2}$.
-            * **Peso relativo preliminar QFD (escala 1–5):** $P_{QFD} = 1 + 4 \\cdot \\left(\\frac{\\text{Consenso \\%}}{100}\\right)$, empleado como insumo auditable para priorizar la Voz del Cliente en la Primera Casa de Calidad.
-            * **Privacidad y anonimización:** La hoja conectada (`Datos_Limpios`) excluye correos electrónicos, nombres y datos personales. Todas las respuestas corresponden a registros reales; no se emplean datos sintéticos.
+            * **Frecuencia relativa (%):** $f_r = \\frac{n_i}{N} \\times 100$, sobre respuestas válidas no nulas ($N$).
+            * **Media aritmética (escala 1–5):** $\\bar{x} = \\frac{1}{N} \\sum_{i=1}^{N} x_i$ y desviación estándar $s = \\sqrt{\\frac{1}{N-1} \\sum_{i=1}^{N} (x_i - \\bar{x})^2}$.
+            * **Casas de Calidad (QFD):** $W_j = \\sum_i (I_i \\cdot r_{ij})$ y $W_{\\text{rel},j} = 100 \\cdot \\frac{W_j}{\\sum_j W_j}$ con escala 9-3-1.
+            * **Evaluación competitiva:** $P = \\frac{1}{100}\\sum_i (I_i \\cdot c_i)$ en escala 0–5.
+            * **Matriz de decisión ponderada:** $S_k = \\sum_i (w_i \\cdot c_{ik})$ con $\\sum w_i = 1$.
+            * **Privacidad:** La base `Datos_Limpios` excluye correos, nombres e identificadores personales y utiliza únicamente respuestas reales.
             """
         )
 
     if not df_filtrado.empty:
-        if meta_f["comentarios"]:
-            st.subheader("Comentarios abiertos de los encuestados")
-            col_com = st.selectbox("Columna de texto abierto:", meta_f["comentarios"])
-            textos = df_filtrado[col_com].dropna().astype(str)
-            busqueda = st.text_input("Buscar palabra clave en comentarios:", placeholder="Ej: humo, precisión, pedal, precio...")
-            if busqueda:
-                textos = textos[textos.str.contains(busqueda, case=False, na=False)]
-            st.caption(f"Mostrando {len(textos)} comentarios coincidentes.")
-            st.dataframe(pd.DataFrame({"Comentario anónimo": textos.values}), hide_index=True, width="stretch")
-
-        st.divider()
-        st.subheader("Vista de base de datos anonimizada y descargas")
         st.dataframe(df_filtrado, hide_index=True, width="stretch")
 
         d1, d2, d3 = st.columns(3)
         d1.download_button(
-            "⬇️ Descargar datos anonimizados (CSV)",
+            "⬇️ Descargar encuesta anonimizada (CSV)",
             data=df_filtrado.to_csv(index=False).encode("utf-8-sig"),
-            file_name="datos_encuesta_tercera_mano_anonimizados.csv",
+            file_name="datos_encuesta_brazo_soldadura_anonimizados.csv",
             mime="text/csv",
             width="stretch",
         )
 
         qfd_export = construir_resumen_qfd(df_filtrado, meta_f["categoricas"])
         d2.download_button(
-            "⬇️ Descargar resumen para QFD (CSV)",
+            "⬇️ Descargar resumen encuesta→QFD (CSV)",
             data=qfd_export.to_csv(index=False).encode("utf-8-sig"),
-            file_name="resumen_necesidades_qfd.csv",
+            file_name="resumen_necesidades_encuesta_qfd.csv",
             mime="text/csv",
             width="stretch",
         )
 
         metadatos = {
-            "proyecto": "Tercera Mano Robótica para Soldadura de PCBs",
+            "proyecto": "Brazo Robótico Asistente de Soldadura de Placas PCB",
             "institucion": "Escuela Politécnica Nacional (EPN) - Facultad de Ingeniería Mecánica",
-            "carrera": "Ingeniería Mecatrónica",
+            "grupo": "GR1S4",
+            "integrantes": [m["nombre"] for m in EQUIPO],
             "respuestas_totales": int(total_muestra),
             "respuestas_filtradas": int(total_filtrado),
-            "preguntas_categoricas": meta_f["categoricas"],
-            "variables_numericas": list(meta_f["numericas"].keys()),
-            "umbral_prioridad_alta_pct": int(umbral_consenso),
+            "concepto_seleccionado": "Alternativa A (QFD) - 4.75/5",
+            "costo_objetivo_usd": 100,
+            "emisiones_preliminares_openlca_kg_co2": 1.263,
         }
         d3.download_button(
             "⬇️ Descargar metadatos del estudio (JSON)",
             data=json.dumps(metadatos, indent=2, ensure_ascii=False),
-            file_name="metadatos_encuesta_fase1.json",
+            file_name="metadatos_proyecto_fase1.json",
             mime="application/json",
             width="stretch",
         )
@@ -1195,7 +1518,7 @@ with tabs[5]:
 st.markdown(
     """
 <div class="footer-web">
-    Proyecto Integrador de Diseño de Máquinas · Ingeniería Mecatrónica · Escuela Politécnica Nacional (EPN) · Aplicación pública en Python y Streamlit
+    Proyecto Integrador de Diseño de Máquinas (GR1S4) · Ingeniería Mecatrónica · Escuela Politécnica Nacional (EPN) · Aplicación pública en Python y Streamlit
 </div>
 """,
     unsafe_allow_html=True,
