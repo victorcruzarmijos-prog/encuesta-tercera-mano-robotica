@@ -20,7 +20,8 @@ st.set_page_config(
 # ==============================================================================
 # 2. CONEXIÓN CON GOOGLE SHEETS Y APPS SCRIPT
 # ==============================================================================
-URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyV4WUdP8vvEkRgqnWTvMyFdcXchyXtJXO8oKVX660rpj8SxVIbQrvO9fDp4n3FDH2Y/exec"
+# PEGA AQUÍ TU ENLACE DE APPS SCRIPT QUE TERMINA EN /exec (ENTRE COMILLAS):
+URL_APPS_SCRIPT = "PEGA_AQUI_TU_URL_QUE_TERMINA_EN_EXEC"
 ID_HOJA = "1vn_id57bRE3l3dTh_ScTknJpTW3HDjmUnIA7tc4BX6M"
 NOMBRE_HOJA = "Datos_Limpios"
 URL_CSV_HOJA = (
@@ -33,7 +34,7 @@ URL_CSV_HOJA = (
 # ==============================================================================
 EQUIPO = [
     {
-        "nombre": "Estalin Boada",
+        "nombre": "Integrante 1 (Editar nombre)",
         "carrera": "Ingeniería Mecatrónica · EPN",
         "rol": "Planteamiento, Metodología y Ciclo de Vida (OpenLCA)",
         "capitulo": "Capítulo 1 · Secciones 1.1 a 1.7",
@@ -47,14 +48,14 @@ EQUIPO = [
         "icono": "💻",
     },
     {
-        "nombre": "Alan Villamarin",
+        "nombre": "Daniel Ramos",
         "carrera": "Ingeniería Mecatrónica · EPN",
         "rol": "Arquitectura Funcional, Modularidad y Selección",
         "capitulo": "Capítulo 3 · Secciones 3.1 a 3.6 y 3.9",
         "icono": "⚙️",
     },
     {
-        "nombre": "Maverick Cadena",
+        "nombre": "Integrante 4 (Editar nombre)",
         "carrera": "Ingeniería Mecatrónica · EPN",
         "rol": "Casas de Calidad (QFD) e Integración Técnica",
         "capitulo": "Capítulo 2 · Secciones 2.6 a 2.9",
@@ -543,4 +544,659 @@ k1.metric(
 )
 
 if meta_f["frustracion"] and meta_f["frustracion"] in meta_f["numericas"]:
-    serie_num = meta_f["
+    serie_num = meta_f["numericas"][meta_f["frustracion"]].dropna()
+    escala_max = int(max(5, round(serie_num.max()))) if len(serie_num) > 0 else 5
+    prom = float(serie_num.mean()) if len(serie_num) > 0 else 0.0
+    desv = float(serie_num.std()) if len(serie_num) > 1 else 0.0
+    mediana = float(serie_num.median()) if len(serie_num) > 0 else 0.0
+    k2.metric("Frustración promedio", f"{prom:.2f} / {escala_max}", delta=f"Mediana: {mediana:.1f}")
+    k3.metric("Desviación estándar", f"{desv:.2f}", delta=f"n válido: {len(serie_num)}")
+else:
+    k2.metric("Preguntas evaluadas", f"{len(meta_f['categoricas'])}")
+    k3.metric("Columnas en la base", f"{len(df_filtrado.columns)}")
+
+if not df_filtrado.empty and meta_f["perfil"]:
+    tf_perfil = tabla_frecuencias(df_filtrado[meta_f["perfil"]])
+    if not tf_perfil.empty:
+        k4.metric(
+            "Perfil predominante",
+            acortar_etiqueta(tf_perfil.iloc[0]["Categoría"], 18),
+            delta=f"{tf_perfil.iloc[0]['Porcentaje (%)']:.1f} % ({int(tf_perfil.iloc[0]['Frecuencia'])})",
+        )
+    else:
+        k4.metric("Perfil predominante", "—")
+else:
+    k4.metric("Estado de conexión", "Sin datos" if error_carga else "En espera")
+
+if error_carga:
+    st.error(
+        "No se pudo conectar con la hoja de cálculo. Verifica que esté compartida como Lector "
+        f"y que la pestaña se llame exactamente '{NOMBRE_HOJA}'."
+    )
+    st.caption(f"Detalle técnico: {error_carga}")
+
+# ==============================================================================
+# 8. PESTAÑAS DE NAVEGACIÓN DE LA PÁGINA WEB
+# ==============================================================================
+tabs = st.tabs(
+    [
+        "🏠 1 · Quiénes somos y Proyecto",
+        "📝 2 · Responder Encuesta",
+        "📊 3 · Gráficas y Porcentajes",
+        "🔀 4 · Cruces y Mapa de Calor",
+        "📐 5 · Del Dato al QFD",
+        "📑 6 · Metodología y Descargas",
+    ]
+)
+
+# ------------------------------------------------------------------------------
+# PESTAÑA 1: QUIÉNES SOMOS, PROBLEMA Y ARQUITECTURA DIDÁCTICA
+# ------------------------------------------------------------------------------
+with tabs[0]:
+    st.subheader("¿Quiénes somos?")
+    st.write(
+        "Somos un equipo de estudiantes de **Ingeniería Mecatrónica** de la "
+        "**Facultad de Ingeniería Mecánica** de la **Escuela Politécnica Nacional (EPN)**. "
+        "Esta plataforma forma parte de la **Primera Fase del Proyecto Integrador de Diseño de Máquinas**, "
+        "orientada a transformar necesidades reales de usuarios en especificaciones técnicas auditables."
+    )
+
+    cols_eq = st.columns(4)
+    for col_ui, miembro in zip(cols_eq, EQUIPO):
+        with col_ui:
+            st.markdown(
+                f"""
+                <div class="team-card">
+                    <div class="team-icon">{miembro['icono']}</div>
+                    <div class="team-name">{miembro['nombre']}</div>
+                    <div class="team-major">{miembro['carrera']}</div>
+                    <div class="team-role">{miembro['rol']}</div>
+                    <span class="team-cap">{miembro['capitulo']}</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    st.divider()
+    st.subheader("¿Qué máquina estamos diseñando?")
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown(
+            """
+            <div class="info-card">
+                <h4>⚠️ El problema real al soldar</h4>
+                <p>Soldar placas electrónicas exige coordinar tres elementos simultáneos:
+                sujetar el componente o PCB, controlar el cautín caliente y acercar el hilo
+                de estaño con precisión, generando fatiga, soldaduras frías y riesgo de quemaduras.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with c2:
+        st.markdown(
+            """
+            <div class="info-card">
+                <h4>👁️ Visión artificial y automatización</h4>
+                <p>El concepto integra una cámara superior con procesamiento local para
+                identificar la posición de la punta del cautín, coordinando un mecanismo
+                alimentador de estaño en frío y un sistema de extracción de humos.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with c3:
+        st.markdown(
+            """
+            <div class="info-card">
+                <h4>🎯 Propósito de esta plataforma</h4>
+                <p>Recopilar respuestas reales de estudiantes, técnicos y aficionados,
+                analizarlas estadísticamente en vivo y derivar pesos objetivos para las
+                tres Casas de Calidad (QFD) y la arquitectura modular de la máquina.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.subheader("Ruta de trazabilidad de la Fase 1")
+    st.markdown(
+        """
+        <div class="flow-grid">
+            <div class="flow-step"><div class="flow-num">1</div><div class="flow-title">Encuesta Real</div><div class="flow-desc">Datos anónimos en Python y Streamlit</div></div>
+            <div class="flow-step"><div class="flow-num">2</div><div class="flow-title">Estadística</div><div class="flow-desc">Porcentajes, cruces y dispersión</div></div>
+            <div class="flow-step"><div class="flow-num">3</div><div class="flow-title">Necesidades</div><div class="flow-desc">Jerarquización de la Voz del Cliente</div></div>
+            <div class="flow-step"><div class="flow-num">4</div><div class="flow-title">3 Casas QFD</div><div class="flow-desc">Parámetros y subsistemas críticos</div></div>
+            <div class="flow-step"><div class="flow-num">5</div><div class="flow-title">Módulos</div><div class="flow-desc">Matriz morfológica y selección</div></div>
+            <div class="flow-step"><div class="flow-num">6</div><div class="flow-title">Boceto IA</div><div class="flow-desc">Refinamiento iterativo validado</div></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.info("👉 Selecciona la pestaña **2 · Responder Encuesta** para participar o **3 · Gráficas y Porcentajes** para explorar el análisis interactivo.")
+
+# ------------------------------------------------------------------------------
+# PESTAÑA 2: FORMULARIO PÚBLICO OPERATIVO (9 PREGUNTAS EXACTAS)
+# ------------------------------------------------------------------------------
+with tabs[1]:
+    st.subheader("Cuestionario público anónimo")
+    st.write(
+        "Tu participación toma menos de 2 minutos. No solicitamos nombres, correos ni "
+        "identificadores personales; cada envío se incorpora directamente a la base anonimizada "
+        "del estudio."
+    )
+
+    with st.form("formulario_tercera_mano", clear_on_submit=True):
+        st.markdown("#### Sección 1 · Perfil y experiencia")
+        a1, a2 = st.columns(2)
+        frecuencia = a1.selectbox(
+            "1. ¿Con qué frecuencia realizas trabajos de ensamble o soldadura de componentes electrónicos?",
+            ["Diario", "Semanal", "Mensual", "Rara vez", "Nunca"],
+        )
+        experiencia = a2.selectbox(
+            "2. ¿Cuál es tu nivel de experiencia soldando placas de circuito impreso (PCBs)?",
+            ["Principiante", "Intermedio", "Avanzado"],
+        )
+
+        st.divider()
+        st.markdown("#### Sección 2 · Validación del problema")
+        frustracion = st.radio(
+            "3. El ensamblaje manual resulta complejo por la necesidad de sostener simultáneamente la placa, el componente, el cautín y el estaño. En una escala del 1 al 5, ¿qué tan frustrante te resulta esto?",
+            ["1 (Nada complicado)", "2", "3", "4", "5 (Muy frustrante)"],
+            horizontal=True,
+        )
+        errores = st.selectbox(
+            "4. ¿Con qué frecuencia experimentas uniones imprecisas, quemaduras o errores por no tener una mano libre extra?",
+            ["Casi siempre", "Frecuentemente", "A veces", "Nunca"],
+        )
+
+        st.divider()
+        st.markdown("#### Sección 3 · Requerimientos funcionales y estructurales")
+        b1, b2 = st.columns(2)
+        activacion = b1.selectbox(
+            "5. Para activar la alimentación automática de estaño con la máquina, ¿qué método te resultaría más ergonómico?",
+            [
+                "Un pedal accionado con el pie",
+                "Un comando gestual (ej. mover la mano de cierta forma)",
+                "Un botón de proximidad en el escritorio",
+            ],
+        )
+        longitud_estano = b2.selectbox(
+            "6. ¿Qué longitud base de estaño consideras ideal que se empuje automáticamente para un punto de soldadura estándar?",
+            [
+                "1 a 3 mm",
+                "4 a 6 mm",
+                "Más de 6 mm",
+                "Prefiero que sea ajustable por el usuario",
+            ],
+        )
+        caracteristica_clave = st.selectbox(
+            "7. Considerando el ambiente de soldadura, ¿qué característica valoras más en la estructura del equipo?",
+            [
+                "Estabilidad y peso (que no se mueva)",
+                "Resistencia térmica (ante salpicaduras o calor)",
+                "Diseño compacto (que ocupe el mínimo espacio en la mesa)",
+            ],
+        )
+
+        st.divider()
+        st.markdown("#### Sección 4 · Visión artificial y calibración")
+        c1, c2 = st.columns(2)
+        privacidad = c1.selectbox(
+            "8. El sistema usa una cámara superior para guiar al robot hacia el cautín. ¿Te sentirías cómodo teniendo una cámara monitoreando tu área de trabajo?",
+            [
+                "Sí, sin problema",
+                "Sí, siempre que el procesamiento sea local y no grabe video",
+                "No, prefiero un sistema cien por ciento manual",
+            ],
+        )
+        calibracion = c2.selectbox(
+            "9. ¿Estarías dispuesto a realizar un proceso de calibración inicial antes de empezar a soldar?",
+            [
+                "Sí, si toma menos de 2 minutos",
+                "Sí, si toma menos de 5 minutos",
+                "No, quiero que sea conectar y usar",
+            ],
+        )
+
+        enviado = st.form_submit_button("Enviar respuesta anónima")
+
+        if enviado:
+            if "PEGA_AQUI" in URL_APPS_SCRIPT:
+                st.warning(
+                    "Falta pegar tu enlace de Google Apps Script en la variable URL_APPS_SCRIPT de app.py."
+                )
+            else:
+                payload = {
+                    "frecuencia": frecuencia,
+                    "experiencia": experiencia,
+                    "frustracion": frustracion,
+                    "errores": errores,
+                    "activacion": activacion,
+                    "longitud_estano": longitud_estano,
+                    "caracteristica_clave": caracteristica_clave,
+                    "privacidad": privacidad,
+                    "calibracion": calibracion,
+                }
+                try:
+                    resp = requests.post(URL_APPS_SCRIPT, json=payload, timeout=15)
+                    if resp.status_code == 200:
+                        st.success("¡Gracias por participar! Tu respuesta anónima se registró correctamente.")
+                        st.cache_data.clear()
+                    else:
+                        st.error(f"El servidor respondió con código {resp.status_code}. Intenta de nuevo.")
+                except Exception as err:
+                    st.error(f"Error de conexión al guardar la respuesta: {err}")
+
+# ------------------------------------------------------------------------------
+# PESTAÑA 3: GRÁFICAS INTERACTIVAS CON PORCENTAJES (DETALLE + VISTA GLOBAL)
+# ------------------------------------------------------------------------------
+with tabs[2]:
+    st.subheader("Análisis estadístico interactivo con porcentajes")
+
+    if df_filtrado.empty or not meta_f["categoricas"]:
+        st.info("No hay datos disponibles para graficar con el filtro actual.")
+    else:
+        col_sel = st.selectbox(
+            "Selecciona una pregunta para inspeccionar en detalle:",
+            options=meta_f["categoricas"],
+        )
+        tf = tabla_frecuencias(df_filtrado[col_sel])
+
+        if not tf.empty:
+            lider = tf.iloc[0]
+            st.success(
+                f"**Hallazgo principal:** La opción más elegida es **«{lider['Categoría']}»** "
+                f"con **{lider['Porcentaje (%)']:.1f} %** ({int(lider['Frecuencia'])} de {int(tf['Frecuencia'].sum())} respuestas válidas)."
+            )
+
+            if tipo_grafico == "Dona + Barras (%)":
+                g1, g2 = st.columns(2)
+                fig_pie = px.pie(
+                    tf,
+                    names="Etiqueta corta",
+                    values="Frecuencia",
+                    hole=0.46,
+                    color_discrete_sequence=PALETA,
+                    custom_data=["Categoría", "Porcentaje (%)"],
+                    title="Distribución porcentual (%)",
+                )
+                fig_pie.update_traces(
+                    textposition="inside",
+                    textinfo="percent",
+                    hovertemplate="<b>%{customdata[0]}</b><br>Respuestas: %{value}<br>Porcentaje: %{customdata[1]:.1f}%<extra></extra>",
+                )
+                g1.plotly_chart(estilizar_figura(fig_pie, 400), width="stretch")
+
+                fig_bar = px.bar(
+                    tf.sort_values("Porcentaje (%)", ascending=True),
+                    x="Porcentaje (%)",
+                    y="Etiqueta corta",
+                    orientation="h",
+                    text="Texto",
+                    color="Porcentaje (%)",
+                    color_continuous_scale="Blues",
+                    custom_data=["Categoría", "Frecuencia"],
+                    title="Frecuencia y porcentaje por opción",
+                )
+                fig_bar.update_traces(
+                    textposition="outside",
+                    hovertemplate="<b>%{customdata[0]}</b><br>Respuestas: %{customdata[1]}<br>Porcentaje: %{x:.1f}%<extra></extra>",
+                )
+                fig_bar.update_layout(
+                    coloraxis_showscale=False,
+                    xaxis_title="Porcentaje (%)",
+                    yaxis_title="",
+                    xaxis_range=[0, min(115, float(tf["Porcentaje (%)"].max()) * 1.28 + 5)],
+                )
+                g2.plotly_chart(estilizar_figura(fig_bar, 400), width="stretch")
+
+            elif tipo_grafico == "Solo Dona (%)":
+                fig_pie = px.pie(
+                    tf,
+                    names="Etiqueta corta",
+                    values="Frecuencia",
+                    hole=0.46,
+                    color_discrete_sequence=PALETA,
+                    custom_data=["Categoría", "Porcentaje (%)"],
+                    title=acortar_etiqueta(col_sel, 72),
+                )
+                fig_pie.update_traces(
+                    textposition="inside",
+                    textinfo="percent+label",
+                    hovertemplate="<b>%{customdata[0]}</b><br>Respuestas: %{value}<br>Porcentaje: %{customdata[1]:.1f}%<extra></extra>",
+                )
+                st.plotly_chart(estilizar_figura(fig_pie, 430), width="stretch")
+
+            else:
+                fig_bar = px.bar(
+                    tf.sort_values("Porcentaje (%)", ascending=True),
+                    x="Porcentaje (%)",
+                    y="Etiqueta corta",
+                    orientation="h",
+                    text="Texto",
+                    color="Porcentaje (%)",
+                    color_continuous_scale="Blues",
+                    custom_data=["Categoría", "Frecuencia"],
+                    title=acortar_etiqueta(col_sel, 72),
+                )
+                fig_bar.update_traces(
+                    textposition="outside",
+                    hovertemplate="<b>%{customdata[0]}</b><br>Respuestas: %{customdata[1]}<br>Porcentaje: %{x:.1f}%<extra></extra>",
+                )
+                fig_bar.update_layout(
+                    coloraxis_showscale=False,
+                    xaxis_title="Porcentaje (%)",
+                    yaxis_title="",
+                    xaxis_range=[0, min(115, float(tf["Porcentaje (%)"].max()) * 1.25 + 5)],
+                )
+                st.plotly_chart(estilizar_figura(fig_bar, 420), width="stretch")
+
+            st.markdown("**Tabla de frecuencias absolutas y relativas**")
+            st.dataframe(
+                tf[["Categoría", "Frecuencia", "Porcentaje (%)", "Acumulado (%)"]],
+                hide_index=True,
+                width="stretch",
+            )
+
+        if meta_f["numericas"]:
+            st.divider()
+            st.subheader("Distribución de escala cuantitativa (Frustración 1–5)")
+            col_num = st.selectbox(
+                "Variable numérica detectada:",
+                options=list(meta_f["numericas"].keys()),
+                key="sel_num_hist",
+            )
+            serie_n = meta_f["numericas"][col_num].dropna()
+            if len(serie_n) > 0:
+                n1, n2, n3, n4 = st.columns(4)
+                n1.metric("Media", f"{serie_n.mean():.2f}")
+                n2.metric("Mediana", f"{serie_n.median():.2f}")
+                n3.metric("Desv. estándar", f"{serie_n.std():.2f}" if len(serie_n) > 1 else "0.00")
+                n4.metric("Mín / Máx", f"{serie_n.min():.0f} – {serie_n.max():.0f}")
+
+                fig_hist = px.histogram(
+                    x=serie_n,
+                    nbins=min(10, int(serie_n.nunique()) + 1),
+                    text_auto=True,
+                    color_discrete_sequence=["#0284c7"],
+                    labels={"x": acortar_etiqueta(col_num, 50), "y": "Cantidad de respuestas"},
+                    title="Histograma de frecuencias",
+                )
+                fig_hist.update_layout(bargap=0.18)
+                st.plotly_chart(estilizar_figura(fig_hist, 340), width="stretch")
+
+        st.divider()
+        st.subheader("Vista panorámica de todas las preguntas (%)")
+        st.caption("Resumen visual completo para revisar rápidamente el comportamiento de toda la encuesta.")
+
+        cols_vista = meta_f["categoricas"]
+        for i in range(0, len(cols_vista), 2):
+            par = st.columns(2)
+            for j in range(2):
+                if i + j < len(cols_vista):
+                    c_nombre = cols_vista[i + j]
+                    tf_mini = tabla_frecuencias(df_filtrado[c_nombre])
+                    if not tf_mini.empty:
+                        with par[j]:
+                            fig_m = px.pie(
+                                tf_mini,
+                                names="Etiqueta corta",
+                                values="Frecuencia",
+                                hole=0.45,
+                                color_discrete_sequence=PALETA,
+                                custom_data=["Categoría", "Porcentaje (%)"],
+                                title=acortar_etiqueta(c_nombre, 54),
+                            )
+                            fig_m.update_traces(
+                                textposition="inside",
+                                textinfo="percent",
+                                hovertemplate="<b>%{customdata[0]}</b><br>n = %{value} (%{customdata[1]:.1f}%)<extra></extra>",
+                            )
+                            st.plotly_chart(estilizar_figura(fig_m, 340), width="stretch")
+
+# ------------------------------------------------------------------------------
+# PESTAÑA 4: CRUCES DE VARIABLES Y MAPA DE CALOR
+# ------------------------------------------------------------------------------
+with tabs[3]:
+    st.subheader("Cruces de variables y tabla de contingencia")
+    st.write(
+        "Compara dos preguntas simultáneamente para detectar cómo varían las preferencias "
+        "técnicas según el perfil del usuario (por ejemplo, experiencia frente al método de activación)."
+    )
+
+    if df_filtrado.empty or len(meta_f["categoricas"]) < 2:
+        st.info("Se necesitan al menos dos preguntas categóricas con datos para realizar cruces.")
+    else:
+        x_col, y_col, m_col = st.columns([2, 2, 1])
+        var_filas = x_col.selectbox("Variable principal (filas / eje X):", meta_f["categoricas"], index=0)
+        opciones_y = [c for c in meta_f["categoricas"] if c != var_filas]
+        var_cols = y_col.selectbox("Variable a comparar (grupos / columnas):", opciones_y, index=0)
+        modo_pct = m_col.radio("Mostrar valores en:", ["Porcentaje (%)", "Conteo (n)"])
+
+        sub = df_filtrado[[var_filas, var_cols]].dropna().astype(str)
+        if not sub.empty:
+            ct_abs = pd.crosstab(sub[var_filas], sub[var_cols])
+            ct_pct = (pd.crosstab(sub[var_filas], sub[var_cols], normalize="index") * 100).round(1)
+            matriz = ct_pct if modo_pct == "Porcentaje (%)" else ct_abs
+
+            largo = matriz.reset_index().melt(
+                id_vars=var_filas,
+                var_name="Grupo",
+                value_name="Valor",
+            )
+            largo["Eje_X"] = largo[var_filas].map(lambda s: acortar_etiqueta(s, 26))
+            largo["Grupo_corto"] = largo["Grupo"].map(lambda s: acortar_etiqueta(s, 26))
+
+            fig_cross = px.bar(
+                largo,
+                x="Eje_X",
+                y="Valor",
+                color="Grupo_corto",
+                barmode="group",
+                text_auto=".1f" if modo_pct == "Porcentaje (%)" else True,
+                color_discrete_sequence=PALETA,
+                labels={
+                    "Eje_X": acortar_etiqueta(var_filas, 40),
+                    "Valor": modo_pct,
+                    "Grupo_corto": acortar_etiqueta(var_cols, 30),
+                },
+                title="Comparación agrupada entre variables",
+            )
+            st.plotly_chart(estilizar_figura(fig_cross, 410), width="stretch")
+
+            fig_heat = px.imshow(
+                matriz.values,
+                x=[acortar_etiqueta(c, 22) for c in matriz.columns],
+                y=[acortar_etiqueta(r, 24) for r in matriz.index],
+                text_auto=".1f" if modo_pct == "Porcentaje (%)" else True,
+                color_continuous_scale="YlGnBu",
+                aspect="auto",
+                labels=dict(color=modo_pct),
+                title=f"Mapa de calor ({modo_pct} por fila)",
+            )
+            st.plotly_chart(estilizar_figura(fig_heat, 380), width="stretch")
+
+            st.markdown("**Tabla de contingencia lista para el informe (Sección 2.4)**")
+            st.dataframe(matriz, width="stretch")
+
+# ------------------------------------------------------------------------------
+# PESTAÑA 5: DEL DATO AL DISEÑO CONCEPTUAL Y QFD (SECCIONES 2.5 – 2.9)
+# ------------------------------------------------------------------------------
+with tabs[4]:
+    st.subheader("Jerarquización de necesidades y puente hacia el QFD")
+    st.write(
+        "Esta sección traduce automáticamente las respuestas reales de la encuesta en pesos "
+        "relativos de la Voz del Cliente (sección 2.5) para alimentar la **Primera Casa de Calidad**."
+    )
+
+    if not df_filtrado.empty and meta_f["categoricas"]:
+        qfd_df = construir_resumen_qfd(df_filtrado, meta_f["categoricas"])
+        if not qfd_df.empty:
+            qfd_df["Prioridad"] = np.where(
+                qfd_df["Consenso (%)"] >= umbral_consenso,
+                "Alta (Crítica)",
+                np.where(qfd_df["Consenso (%)"] >= umbral_consenso - 15, "Media", "Moderada"),
+            )
+
+            col_q1, col_q2 = st.columns([3, 2])
+            with col_q1:
+                st.markdown("**Tabla priorizada de necesidades (entrada directa a Casa 1 del QFD)**")
+                st.dataframe(qfd_df, hide_index=True, width="stretch")
+
+            with col_q2:
+                fig_qfd = px.bar(
+                    qfd_df.sort_values("Peso QFD (1–5)", ascending=True),
+                    x="Peso QFD (1–5)",
+                    y="Dimensión / Pregunta",
+                    orientation="h",
+                    color="Prioridad",
+                    text="Peso QFD (1–5)",
+                    color_discrete_map={
+                        "Alta (Crítica)": "#1d4ed8",
+                        "Media": "#0284c7",
+                        "Moderada": "#64748b",
+                    },
+                    title="Peso relativo normalizado (1 a 5)",
+                )
+                fig_qfd.update_traces(textposition="outside")
+                fig_qfd.update_layout(xaxis_range=[0, 5.6], yaxis_title="")
+                st.plotly_chart(estilizar_figura(fig_qfd, 400), width="stretch")
+
+            st.divider()
+            st.subheader("Simulador interactivo del perfil de requerimientos (Radar de Diseño)")
+            st.caption(
+                "Ajusta la importancia de los 6 ejes de ingeniería para explorar el equilibrio "
+                "conceptual de la Tercera Mano Robótica antes de fijar las ponderaciones definitivas."
+            )
+
+            r_col1, r_col2 = st.columns([1, 2])
+            with r_col1:
+                w_prec = st.slider("Precisión y dosificación de estaño (mm)", 1, 5, 5)
+                w_seg = st.slider("Seguridad térmica y estabilidad", 1, 5, 5)
+                w_erg = st.slider("Ergonomía y manos libres", 1, 5, 4)
+                w_vel = st.slider("Rapidez de calibración (< 2 min)", 1, 5, 4)
+                w_priv = st.slider("Visión artificial 100 % local", 1, 5, 4)
+                w_cost = st.slider("Costo accesible / fabricabilidad", 1, 5, 3)
+
+            with r_col2:
+                categorias_radar = [
+                    "Precisión",
+                    "Seguridad térmica",
+                    "Ergonomía",
+                    "Calibración rápida",
+                    "Visión local",
+                    "Accesibilidad",
+                ]
+                valores_radar = [w_prec, w_seg, w_erg, w_vel, w_priv, w_cost]
+                fig_radar = go.Figure(
+                    data=go.Scatterpolar(
+                        r=valores_radar + [valores_radar[0]],
+                        theta=categorias_radar + [categorias_radar[0]],
+                        fill="toself",
+                        line_color="#0284c7",
+                        fillcolor="rgba(2, 132, 199, 0.25)",
+                        name="Perfil objetivo",
+                    )
+                )
+                fig_radar.update_layout(
+                    polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
+                    showlegend=False,
+                    title="Equilibrio conceptual de requerimientos técnicos",
+                )
+                st.plotly_chart(estilizar_figura(fig_radar, 390), width="stretch")
+
+            st.divider()
+            st.markdown("**Traducción preliminar de requerimientos técnicos (puente hacia Sección 2.6 y Capítulo 3)**")
+            matriz_puente = pd.DataFrame(
+                [
+                    ["Dosificación controlada de estaño", "Encuesta · Pregunta 6", "Avance configurable (1–6 mm / ajustable)", "Motor paso a paso + extrusor de estaño en frío"],
+                    ["Seguimiento de la punta del cautín", "Encuesta · Pregunta 8", "Procesamiento local sin grabación en la nube", "Cámara cenital + modelo de detección local"],
+                    ["Activación ergonómica manos libres", "Encuesta · Pregunta 5", "Disparo sin soltar el cautín", "Pedal de pie / comando gestual / botón de proximidad"],
+                    ["Estabilidad y seguridad térmica", "Encuesta · Pregunta 7", "Base estable y resistente a salpicaduras/calor", "Estructura rígida + boquilla resistente a >250 °C"],
+                    ["Calibración ágil", "Encuesta · Pregunta 9", "Puesta a punto rápida (< 2 min)", "Referencia visual fija en el área de trabajo"],
+                ],
+                columns=["Necesidad del usuario", "Origen trazable", "Objetivo preliminar", "Subsistema o módulo asociado"],
+            )
+            st.dataframe(matriz_puente, hide_index=True, width="stretch")
+    else:
+        st.info("Carga datos reales en la hoja para generar la matriz QFD preliminar.")
+
+# ------------------------------------------------------------------------------
+# PESTAÑA 6: METODOLOGÍA Y DESCARGAS VERIFICABLES
+# ------------------------------------------------------------------------------
+with tabs[5]:
+    st.subheader("Metodología, rigor técnico y exportación de evidencias")
+
+    with st.expander("Fórmulas estadísticas y criterios de trazabilidad", expanded=True):
+        st.markdown(
+            """
+            * **Frecuencia relativa (%):** $f_r = \\frac{n_i}{N} \\times 100$, calculada sobre respuestas válidas no nulas ($N$).
+            * **Media aritmética (escala de frustración 1–5):** $\\bar{x} = \\frac{1}{N} \\sum_{i=1}^{N} x_i$.
+            * **Desviación estándar muestral:** $s = \\sqrt{\\frac{1}{N-1} \\sum_{i=1}^{N} (x_i - \\bar{x})^2}$.
+            * **Peso relativo preliminar QFD (escala 1–5):** $P_{QFD} = 1 + 4 \\cdot \\left(\\frac{\\text{Consenso \\%}}{100}\\right)$, empleado como insumo auditable para priorizar la Voz del Cliente en la Primera Casa de Calidad.
+            * **Privacidad y anonimización:** La hoja conectada (`Datos_Limpios`) excluye correos electrónicos, nombres y datos personales. Todas las respuestas corresponden a registros reales; no se emplean datos sintéticos.
+            """
+        )
+
+    if not df_filtrado.empty:
+        if meta_f["comentarios"]:
+            st.subheader("Comentarios abiertos de los encuestados")
+            col_com = st.selectbox("Columna de texto abierto:", meta_f["comentarios"])
+            textos = df_filtrado[col_com].dropna().astype(str)
+            busqueda = st.text_input("Buscar palabra clave en comentarios:", placeholder="Ej: humo, precisión, pedal, precio...")
+            if busqueda:
+                textos = textos[textos.str.contains(busqueda, case=False, na=False)]
+            st.caption(f"Mostrando {len(textos)} comentarios coincidentes.")
+            st.dataframe(pd.DataFrame({"Comentario anónimo": textos.values}), hide_index=True, width="stretch")
+
+        st.divider()
+        st.subheader("Vista de base de datos anonimizada y descargas")
+        st.dataframe(df_filtrado, hide_index=True, width="stretch")
+
+        d1, d2, d3 = st.columns(3)
+        d1.download_button(
+            "⬇️ Descargar datos anonimizados (CSV)",
+            data=df_filtrado.to_csv(index=False).encode("utf-8-sig"),
+            file_name="datos_encuesta_tercera_mano_anonimizados.csv",
+            mime="text/csv",
+            width="stretch",
+        )
+
+        qfd_export = construir_resumen_qfd(df_filtrado, meta_f["categoricas"])
+        d2.download_button(
+            "⬇️ Descargar resumen para QFD (CSV)",
+            data=qfd_export.to_csv(index=False).encode("utf-8-sig"),
+            file_name="resumen_necesidades_qfd.csv",
+            mime="text/csv",
+            width="stretch",
+        )
+
+        metadatos = {
+            "proyecto": "Tercera Mano Robótica para Soldadura de PCBs",
+            "institucion": "Escuela Politécnica Nacional (EPN) - Facultad de Ingeniería Mecánica",
+            "carrera": "Ingeniería Mecatrónica",
+            "respuestas_totales": int(total_muestra),
+            "respuestas_filtradas": int(total_filtrado),
+            "preguntas_categoricas": meta_f["categoricas"],
+            "variables_numericas": list(meta_f["numericas"].keys()),
+            "umbral_prioridad_alta_pct": int(umbral_consenso),
+        }
+        d3.download_button(
+            "⬇️ Descargar metadatos del estudio (JSON)",
+            data=json.dumps(metadatos, indent=2, ensure_ascii=False),
+            file_name="metadatos_encuesta_fase1.json",
+            mime="application/json",
+            width="stretch",
+        )
+
+# ==============================================================================
+# 9. PIE DE PÁGINA
+# ==============================================================================
+st.markdown(
+    """
+<div class="footer-web">
+    Proyecto Integrador de Diseño de Máquinas · Ingeniería Mecatrónica · Escuela Politécnica Nacional (EPN) · Aplicación pública en Python y Streamlit
+</div>
+""",
+    unsafe_allow_html=True,
+)
